@@ -4,7 +4,10 @@ namespace app\controllers;
 use Yii;
 use app\models\Customer;
 use yii\rest\ActiveController;
+use yii\filters\auth\CompositeAuth;
 use yii\filters\auth\HttpBasicAuth;
+use yii\filters\auth\HttpBearerAuth;
+use yii\filters\auth\QueryParamAuth;
 use yii\filters\AccessControl;
 
 class CustomerController extends ActiveController
@@ -13,9 +16,14 @@ class CustomerController extends ActiveController
     public function behaviors()
     {
         $behaviors = parent::behaviors();
-        // $behaviors['authenticator'] = [
-        //     'class' => HttpBasicAuth::class,
-        // ];
+        $behaviors['authenticator'] = [
+            'class' => CompositeAuth::class,
+            'authMethods' => [
+                HttpBasicAuth::class,
+                HttpBearerAuth::class,
+                QueryParamAuth::class,
+            ],
+        ];
         $behaviors['access'] = [    
             'class' => AccessControl::class,
             'only' => ['login','logout','signup'],
@@ -34,10 +42,15 @@ class CustomerController extends ActiveController
         ];
         return $behaviors;
     }
+    public function init()
+    {
+        parent::init();
+        Yii::$app->user->enableSession = false;
+    }
     public function actions() 
     {
         $actions = parent::actions();
-        unset($actions['update'], $actions['delete'],$actions['create'],$actions['view']);
+        // unset($actions['update'], $actions['delete'],$actions['create'],$actions['view']);
         return $actions;
     }
     public function actionLogin()
@@ -74,6 +87,7 @@ class CustomerController extends ActiveController
         if(!Yii::$app->user->isGuest) {
             return ["status"=>false, "message"=>"actionSignup Already user"];
         }
+
         $username = Yii::$app->request->getBodyParam('username');
         $password = Yii::$app->request->getBodyParam('password');
         $name = Yii::$app->request->getBodyParam('name');

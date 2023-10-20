@@ -15,6 +15,9 @@ $config = [
         'request' => [
             // !!! insert a secret key in the following (if it is empty) - this is required by cookie validation
             'cookieValidationKey' => 'zKX6PSvZecmQnyJssR7-dCxzDNx3cpt8',
+            'parsers' => [
+                'application/json' => 'yii\web\JsonParser',
+            ]
         ],
         'cache' => [
             'class' => 'yii\caching\FileCache',
@@ -26,6 +29,7 @@ $config = [
         'user' => [
             'identityClass' => 'app\models\Customer',
             'enableAutoLogin' => true,
+            'enableSession' => false,
         ],
         'errorHandler' => [
             'errorAction' => 'site/error',
@@ -57,7 +61,7 @@ $config = [
                     'extraPatterns' => [
                         'GET customer/login' => 'login',
                         'GET customer/logout' => 'logout',
-                        'POST customer/signup'=> 'signup',
+                        'POST,PUT customer/signup'=> 'signup',
                     ],
                 ],
             ],
